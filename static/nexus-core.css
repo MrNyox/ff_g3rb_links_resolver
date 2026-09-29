@@ -1,0 +1,397 @@
+/**
+ * NEXUS AI - CORE ENGINE STYLE LIBRARY (Nyox_Flow v2.2)
+ * Modular Component Framework for Technical User Interfaces
+ */
+
+/* ==========================================================================
+   1. DESIGN TOKENS & SYSTEM VARIABLES
+   ========================================================================== */
+:root {
+    /* Color Palette - Canvas & Structural Containers */
+    --nexus-bg-base: #030913;         /* Deepest Prussian Blue */
+    --nexus-bg-panel: #0c101a;        /* Mid Prussian Blue */
+    --nexus-bg-input: #1d2941;        /* Lightest Prussian Blue */
+    --nexus-bg-deep-blue: #001845;    /* Accent Display Backplane */
+    --nexus-bg-void-blue: #001233;    /* Lightbox & Overlay Tint */
+
+    /* Boundaries & Borders */
+    --nexus-border-dim: #2a3a58;       /* Twilight Indigo */
+    --nexus-border-hover: #2a54d1;     /* Steel Azure */
+    --nexus-border-accent: #33415c;    /* Mid-Structural Token */
+
+    /* Accent & Glow Metrics */
+    --nexus-accent: #26408a;           /* Smart Blue */
+    --nexus-accent-bright: #93a6e4;    /* Soft Sky Blue */
+    --nexus-accent-glow: rgba(15, 16, 17, 0.3);
+    --nexus-accent-subtle: rgba(120, 175, 231, 0.08);
+    --nexus-grid-line: rgba(4, 102, 200, 0.05);
+
+    /* Semantic Status Indicators */
+    --nexus-success: #10b981;          /* Emerald Green */
+    --nexus-danger: #ef4444;           /* Vivid Red */
+
+    /* Typography Color Palette */
+    --nexus-text-steel: #979dac;       /* Primary Data / Copy */
+    --nexus-text-grey: #7d8597;        /* Secondary Descriptors */
+    --nexus-text-slate: #5c677d;       /* Counters / Muted Metadata */
+
+    /* Structural Constants */
+    --nexus-radius: 3px;               /* Strict geometric enforcement */
+    --nexus-font-sans: 'Space Grotesk', -apple-system, sans-serif;
+    --nexus-font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   2. SYSTEM RESET & BASE RULES
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.nexus-viewport {
+    background-color: var(--nexus-bg-base);
+    color: var(--nexus-text-steel);
+    font-family: var(--nexus-font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    /* Ambient Engineering Grid Overlay */
+    background-image:
+        linear-gradient(var(--nexus-grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--nexus-grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Noise Grain Overlay Layer */
+body.nexus-viewport::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Custom Telemetry Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--nexus-bg-base); }
+::-webkit-scrollbar-thumb { background: var(--nexus-border-dim); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--nexus-accent); }
+
+/* ==========================================================================
+   3. TYPOGRAPHY & UTILITIES
+   ========================================================================== */
+.nexus-font-sans { font-family: var(--nexus-font-sans); }
+.nexus-font-mono { font-family: var(--nexus-font-mono); }
+
+.nexus-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--nexus-text-grey);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.nexus-telemetry-text {
+    font-family: var(--nexus-font-mono);
+    font-size: 9px;
+    color: var(--nexus-text-slate);
+}
+
+/* ==========================================================================
+   4. LAYOUT CONTAINERS
+   ========================================================================== */
+.nexus-wrapper {
+    width: 100%;
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 10;
+}
+
+/* Asymmetric 12-Column Scaffolding Grid */
+.nexus-workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .nexus-workspace-grid {
+        grid-template-columns: repeat(12, 1fr);
+    }
+    .nexus-sidebar-span { grid-column: span 3; }
+    .nexus-main-span { grid-column: span 9; }
+
+    .nexus-sticky-panel {
+        position: sticky;
+        top: 1.5rem;
+        height: calc(100vh - 3rem);
+        overflow-y-auto;
+        padding-bottom: 2rem;
+    }
+}
+
+/* Dynamic Gallery Output Blocks Grid */
+.nexus-gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+@media (min-width: 640px)  { .nexus-gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .nexus-gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1536px) { .nexus-gallery-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* ==========================================================================
+   5. CORE HOUSING MODULES (PANELS)
+   ========================================================================== */
+.nexus-panel {
+    background: linear-gradient(135deg, var(--nexus-bg-panel) 0%, var(--nexus-bg-void-blue) 100%);
+    border: 1px solid var(--nexus-border-dim);
+    border-radius: var(--nexus-radius);
+    position: relative;
+    z-index: 1;
+}
+
+/* Subtle Upper Left Corner Inner Rim Light Accent */
+.nexus-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(4, 102, 200, 0.04) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* Neon Top-Facing Ambient Border Accents */
+.nexus-panel--accented::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--nexus-accent), var(--nexus-border-hover), transparent);
+}
+
+/* ==========================================================================
+   6. INTERACTIVE INTERFACE CONTROLS
+   ========================================================================== */
+/* Form Fields Framework */
+.nexus-input, .nexus-select, .nexus-textarea {
+    width: 100%;
+    background-color: var(--nexus-bg-input);
+    border: 1px solid var(--nexus-border-dim);
+    color: #e8e8f0;
+    border-radius: var(--nexus-radius);
+    padding: 0.625rem;
+    font-size: 0.875rem;
+    font-family: var(--nexus-font-sans);
+    transition: all 0.2s ease;
+}
+
+.nexus-select {
+    cursor: pointer;
+    appearance: none;
+}
+.nexus-select option { background-color: var(--nexus-bg-input); }
+
+.nexus-input:focus, .nexus-select:focus, .nexus-textarea:focus {
+    border-color: var(--nexus-accent-bright);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--nexus-accent-glow), inset 0 0 10px rgba(4, 102, 200, 0.04);
+}
+
+/* Custom Performance Range Slider Component */
+.nexus-range {
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, var(--nexus-accent) 0%, var(--nexus-accent) var(--range-pct, 50%), var(--nexus-bg-input) var(--range-pct, 50%));
+    height: 4px;
+    border: none;
+    border-radius: 2px;
+    width: 100%;
+}
+
+.nexus-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 14px;
+    width: 8px;
+    background: var(--nexus-text-steel);
+    cursor: pointer;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(151, 157, 172, 0.6);
+    transition: transform 0.15s ease;
+}
+
+.nexus-range::-webkit-slider-thumb:hover {
+    transform: scaleY(1.3);
+}
+
+/* ==========================================================================
+   7. INTERACTIVE ACTION TRIGGERS (BUTTONS)
+   ========================================================================== */
+.nexus-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--nexus-radius);
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+/* Primary Execution Variant with Anisotropic Sheen Flare Effect */
+.nexus-btn-primary {
+    background: linear-gradient(135deg, var(--nexus-accent) 0%, #023e7d 100%);
+    border-color: var(--nexus-border-hover);
+    color: #ffffff;
+    letter-spacing: 0.2em;
+    font-size: 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.nexus-btn-primary::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 80%; height: 200%;
+    background: rgba(255, 255, 255, 0.08);
+    transform: skewX(-20deg);
+    transition: left 0.4s ease;
+}
+
+.nexus-btn-primary:hover::before { left: 120%; }
+
+.nexus-btn-primary:hover {
+    box-shadow: 0 0 30px rgba(4, 102, 200, 0.45), 0 0 60px rgba(4, 102, 200, 0.1);
+    transform: translateY(-1px);
+}
+.nexus-btn-primary:active { transform: translateY(0); }
+.nexus-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Ghost Secondary Variant */
+.nexus-btn-ghost {
+    background: transparent;
+    border-color: var(--nexus-border-dim);
+    color: var(--nexus-text-steel);
+    font-family: var(--nexus-font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+}
+
+.nexus-btn-ghost:hover {
+    border-color: var(--nexus-border-hover);
+    color: #ffffff;
+    background: var(--nexus-accent-subtle);
+    box-shadow: 0 0 15px rgba(4, 102, 200, 0.1);
+}
+
+/* ==========================================================================
+   8. REALTIME STATUS MODIFIERS
+   ========================================================================== */
+.nexus-status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    background: var(--nexus-border-dim);
+}
+.nexus-status-dot--online {
+    background: var(--nexus-success);
+    box-shadow: 0 0 6px var(--nexus-success);
+}
+.nexus-status-dot--alerting {
+    background: var(--nexus-accent-bright);
+    box-shadow: 0 0 6px var(--nexus-accent-bright);
+    animation: nexus-pulse 1s ease infinite;
+}
+
+@keyframes nexus-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Progress bar runtime tracking */
+.nexus-progress-track {
+    width: 100%;
+    height: 3px;
+    background-color: var(--nexus-border-accent);
+    border-radius: var(--nexus-radius);
+    overflow: hidden;
+}
+
+.nexus-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--nexus-accent) 0%, var(--nexus-border-hover) 50%, var(--nexus-accent) 100__);
+    background-size: 200% 100%;
+    animation: nexus-shimmer 1.5s linear infinite;
+    transition: width 0.15s ease-linear;
+}
+
+@keyframes nexus-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ==========================================================================
+   9. FEEDBACK & FLOATING CRADLES (TOAST / TOOLTIP)
+   ========================================================================== */
+.nexus-toast-stack {
+    position: fixed;
+    bottom: 1.5rem; right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+}
+
+.nexus-toast {
+    background: var(--nexus-bg-panel);
+    border: 1px solid var(--nexus-border-dim);
+    color: #e0e0f0;
+    padding: 10px 16px;
+    border-radius: var(--nexus-radius);
+    font-size: 11px;
+    font-family: var(--nexus-font-mono);
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    max-width: 340px;
+    text-transform: uppercase;
+    animation: nexus-toast-in 0.25s ease forwards;
+}
+.nexus-toast--success { border-left: 3px solid var(--nexus-success); }
+.nexus-toast--danger { border-left: 3px solid var(--nexus-danger); }
+.nexus-toast--info { border-left: 3px solid var(--nexus-accent-bright); }
+
+@keyframes nexus-toast-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Pure CSS Macro-Tooltip Extension Setup */
+[data-nexus-tip] { position: relative; }
+[data-nexus-tip]::after {
+    content: attr(data-nexus-tip);
+    position: absolute;
+    bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%);
+    background: var(--nexus-bg-base);
+    border: 1px solid var(--nexus-border-dim);
+    color: var(--nexus-text-steel);
+    font-size: 10px;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: var(--nexus-radius);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    font-family: var(--nexus-font-mono);
+}
+[data-nexus-tip]:hover::after { opacity: 1; }

@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NEXUS // Multi Link Extractor</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='nexus-core.css') }}">
+
+    <style>
+        /*
+            Page-only layout helpers.
+            The core design system remains nexus-core.css.
+        */
+        .nexus-panel {
+            padding: 1.25rem;
+        }
+
+        a.nexus-btn {
+            text-decoration: none;
+        }
+
+        .nexus-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 1024px) {
+            .nexus-stat-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+        }
+
+        .nexus-stat-box {
+            border: 1px solid var(--nexus-border-dim);
+            background: rgba(29, 41, 65, 0.35);
+            padding: 0.8rem;
+        }
+
+        .nexus-stat-value {
+            font-family: var(--nexus-font-mono);
+            font-size: 18px;
+            color: #ffffff;
+            margin-top: 0.35rem;
+        }
+
+        .nexus-log {
+            font-family: var(--nexus-font-mono);
+            font-size: 11px;
+            line-height: 1.45;
+            color: var(--nexus-text-steel);
+            background: rgba(0, 18, 51, 0.35);
+            border: 1px solid var(--nexus-border-dim);
+            padding: 0.8rem;
+            height: 360px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .nexus-file-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .nexus-settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        @media (max-width: 640px) {
+            .nexus-settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="nexus-viewport">
+    <div class="nexus-wrapper" style="padding: 1.5rem;">
+
+        <header
+            class="nexus-panel nexus-panel--accented"
+            style="
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                margin-bottom: 1.5rem;
+                gap: 1rem;
+                flex-wrap: wrap;
+            "
+        >
+            <div style="min-width: 260px;">
+                <div class="nexus-label" style="margin-bottom: 0.2rem;">
+                    NEXUS AI // MULTI EXTRACTION ENGINE
+                </div>
+
+                <h1
+                    id="pageTitle"
+                    style="
+                        font-size: 20px;
+                        color: #ffffff;
+                        letter-spacing: 0.08em;
+                        text-transform: uppercase;
+                        font-weight: 700;
+                    "
+                >
+                    FitGirl → FuckingFast Direct Link Resolver
+                </h1>
+            </div>
+
+            <div
+                style="
+                    display: flex;
+                    align-items: flex-end;
+                    gap: 1rem;
+                    flex-wrap: wrap;
+                "
+            >
+                <div style="min-width: 240px;">
+                    <label for="modeSelect" class="nexus-label">
+                        Pipeline Mode
+                    </label>
+
+                    <select id="modeSelect" class="nexus-select">
+                        <option value="fitgirl">FitGirl / FuckingFast</option>
+                        <option value="game3rb">Game3rb / 1CloudFile</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; padding-bottom: 0.55rem;">
+                    <span id="statusDot" class="nexus-status-dot"></span>
+                    <span id="statusPhase" class="nexus-telemetry-text">IDLE</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="nexus-workspace-grid">
+
+            <aside
+                class="nexus-sidebar-span"
+                style="display: flex; flex-direction: column; gap: 1.5rem;"
+            >
+
+                <section class="nexus-panel nexus-panel--accented">
+                    <div class="nexus-label">Input Parameters</div>
+
+                    <form
+                        id="scrapeForm"
+                        style="display: flex; flex-direction: column; gap: 1rem;"
+                    >
+
+                        <div id="game3rbModeGroup" style="display: none;">
+                            <label for="game3rbDownloadMode" class="nexus-label">
+                                Game3rb Download Mode
+                            </label>
+
+                            <select id="game3rbDownloadMode" class="nexus-select">
+                                <option value="iterative">Iterative / Sequential</option>
+                                <option value="concurrent">Concurrent</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="mainLink" class="nexus-label" id="mainLinkLabel">
+                                Main FitGirl Link
+                            </label>
+
+                            <input
+                                id="mainLink"
+                                class="nexus-input"
+                                type="url"
+                                placeholder="https://fitgirl-repacks.site/..."
+                                required
+                            >
+                        </div>
+
+                        <div id="concurrencyGroup">
+                            <label for="concurrency" class="nexus-label">
+                                Concurrent Downloads
+                            </label>
+
+                            <input
+                                id="concurrency"
+                                class="nexus-range"
+                                type="range"
+                                min="1"
+                                max="100"
+                                step="1"
+                                value="5"
+                                style="--range-pct: 4%;"
+                            >
+
+                            <div
+                                style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    margin-top: 0.5rem;
+                                "
+                            >
+                                <span class="nexus-telemetry-text">1</span>
+                                <span
+                                    id="concurrencyValue"
+                                    style="
+                                        font-family: var(--nexus-font-mono);
+                                        color: #ffffff;
+                                    "
+                                >
+                                    5
+                                </span>
+                                <span class="nexus-telemetry-text">100</span>
+                            </div>
+                        </div>
+
+                        <div
+                            id="iterativeNote"
+                            class="nexus-telemetry-text"
+                            style="display: none;"
+                        >
+                            Iterative mode locks concurrency to 1 and uses delay/backoff tuning.
+                        </div>
+
+                        <div id="game3rbSettingsGroup" class="nexus-settings-grid" style="display: none;">
+                            <div>
+                                <label for="delayBetweenUrls" class="nexus-label">
+                                    Delay Between URLs
+                                </label>
+                                <input
+                                    id="delayBetweenUrls"
+                                    class="nexus-input"
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value="0.0"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="initialWarmup" class="nexus-label">
+                                    Initial Warmup
+                                </label>
+                                <input
+                                    id="initialWarmup"
+                                    class="nexus-input"
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value="1.0"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="maxRetries" class="nexus-label">
+                                    Max Retries
+                                </label>
+                                <input
+                                    id="maxRetries"
+                                    class="nexus-input"
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    step="1"
+                                    value="4"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="pollInterval" class="nexus-label">
+                                    Poll Interval
+                                </label>
+                                <input
+                                    id="pollInterval"
+                                    class="nexus-input"
+                                    type="number"
+                                    min="0.05"
+                                    step="0.05"
+                                    value="0.25"
+                                >
+                            </div>
+                        </div>
+
+                        <button
+                            id="startBtn"
+                            class="nexus-btn nexus-btn-primary"
+                            style="width: 100%; padding: 0.95rem;"
+                        >
+                            ⚡ Initialize Extraction
+                        </button>
+                    </form>
+                </section>
+
+                <section class="nexus-panel">
+                    <div class="nexus-label">Output Artifacts</div>
+
+                    <div id="outputFitgirl" class="nexus-file-row">
+                        <a
+                            class="nexus-btn nexus-btn-ghost"
+                            style="width: 100%; padding: 0.75rem;"
+                            href="/download/ff_links.txt"
+                        >
+                            ↓ ff_links.txt
+                        </a>
+
+                        <a
+                            class="nexus-btn nexus-btn-ghost"
+                            style="width: 100%; padding: 0.75rem;"
+                            href="/download/ff_direct_download_links.txt"
+                        >
+                            ↓ ff_direct_download_links.txt
+                        </a>
+                    </div>
+
+                    <div id="outputGame3rb" class="nexus-file-row" style="display: none;">
+                        <a
+                            class="nexus-btn nexus-btn-ghost"
+                            style="width: 100%; padding: 0.75rem;"
+                            href="/download/game3rb_1cloudfile_links.txt"
+                        >
+                            ↓ game3rb_1cloudfile_links.txt
+                        </a>
+
+                        <a
+                            class="nexus-btn nexus-btn-ghost"
+                            style="width: 100%; padding: 0.75rem;"
+                            href="/download/game3rb_direct_download_links.txt"
+                        >
+                            ↓ game3rb_direct_download_links.txt
+                        </a>
+                    </div>
+
+                    <div class="nexus-telemetry-text" style="margin-top: 0.75rem;">
+                        Files are saved in ./links
+                    </div>
+                </section>
+
+            </aside>
+
+            <main
+                class="nexus-main-span"
+                style="display: flex; flex-direction: column; gap: 1.5rem;"
+            >
+
+                <section class="nexus-panel nexus-panel--accented">
+                    <div class="nexus-label">Runtime Telemetry</div>
+
+                    <div class="nexus-stat-grid">
+                        <div class="nexus-stat-box">
+                            <span class="nexus-label" style="margin: 0;" id="statSourceLabel">
+                                FF Links
+                            </span>
+                            <div id="statFfLinks" class="nexus-stat-value">0</div>
+                        </div>
+
+                        <div class="nexus-stat-box">
+                            <span class="nexus-label" style="margin: 0;">
+                                Processed
+                            </span>
+                            <div id="statProcessed" class="nexus-stat-value">0</div>
+                        </div>
+
+                        <div class="nexus-stat-box">
+                            <span class="nexus-label" style="margin: 0;">
+                                Direct Links
+                            </span>
+                            <div id="statDirect" class="nexus-stat-value">0</div>
+                        </div>
+
+                        <div class="nexus-stat-box">
+                            <span class="nexus-label" style="margin: 0;">
+                                Failures
+                            </span>
+                            <div id="statFailed" class="nexus-stat-value">0</div>
+                        </div>
+
+                        <div class="nexus-stat-box">
+                            <span class="nexus-label" style="margin: 0;">
+                                Progress
+                            </span>
+                            <div id="statProgress" class="nexus-stat-value">0%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <div class="nexus-progress-track">
+                            <div
+                                id="progressFill"
+                                class="nexus-progress-fill"
+                                style="width: 0%;"
+                            ></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="nexus-panel">
+                    <div class="nexus-label">System Log</div>
+
+                    <div id="systemLog" class="nexus-log">[SYSTEM] Nexus engine standing by...
+</div>
+                </section>
+
+            </main>
+
+        </div>
+    </div>
+
+    <div id="toastStack" class="nexus-toast-stack"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const el = {
+                form: document.getElementById("scrapeForm"),
+
+                pageTitle: document.getElementById("pageTitle"),
+                modeSelect: document.getElementById("modeSelect"),
+
+                game3rbModeGroup: document.getElementById("game3rbModeGroup"),
+                game3rbDownloadMode: document.getElementById("game3rbDownloadMode"),
+
+                mainLinkLabel: document.getElementById("mainLinkLabel"),
+                mainLink: document.getElementById("mainLink"),
+
+                concurrencyGroup: document.getElementById("concurrencyGroup"),
+                concurrency: document.getElementById("concurrency"),
+                concurrencyValue: document.getElementById("concurrencyValue"),
+
+                iterativeNote: document.getElementById("iterativeNote"),
+
+                game3rbSettingsGroup: document.getElementById("game3rbSettingsGroup"),
+                delayBetweenUrls: document.getElementById("delayBetweenUrls"),
+                initialWarmup: document.getElementById("initialWarmup"),
+                maxRetries: document.getElementById("maxRetries"),
+                pollInterval: document.getElementById("pollInterval"),
+
+                startBtn: document.getElementById("startBtn"),
+
+                statusDot: document.getElementById("statusDot"),
+                statusPhase: document.getElementById("statusPhase"),
+
+                statSourceLabel: document.getElementById("statSourceLabel"),
+                statFfLinks: document.getElementById("statFfLinks"),
+                statProcessed: document.getElementById("statProcessed"),
+                statDirect: document.getElementById("statDirect"),
+                statFailed: document.getElementById("statFailed"),
+                statProgress: document.getElementById("statProgress"),
+
+                progressFill: document.getElementById("progressFill"),
+                systemLog: document.getElementById("systemLog"),
+                toastStack: document.getElementById("toastStack"),
+
+                outputFitgirl: document.getElementById("outputFitgirl"),
+                outputGame3rb: document.getElementById("outputGame3rb")
+            };
+
+            let lastStatusKey = "";
+            let previousPhase = "";
+            let uiInitialized = false;
+
+            function updateSlider() {
+                const min = Number(el.concurrency.min || 1);
+                const max = Number(el.concurrency.max || 100);
+                const value = Number(el.concurrency.value || 5);
+
+                const pct = ((value - min) / (max - min)) * 100;
+
+                el.concurrency.style.setProperty("--range-pct", pct + "%");
+                el.concurrencyValue.textContent = String(value);
+            }
+
+            function toast(kind, message) {
+                const container = el.toastStack;
+
+                const toastEl = document.createElement("div");
+                toastEl.className = `nexus-toast nexus-toast--${kind}`;
+
+                const icon = document.createElement("span");
+                const text = document.createElement("span");
+
+                if (kind === "success") {
+                    icon.textContent = "✓";
+                } else if (kind === "danger") {
+                    icon.textContent = "✕";
+                } else {
+                    icon.textContent = "ℹ";
+                }
+
+                text.textContent = message;
+
+                toastEl.appendChild(icon);
+                toastEl.appendChild(text);
+
+                container.appendChild(toastEl);
+
+                setTimeout(() => {
+                    toastEl.remove();
+                }, 4000);
+            }
+
+            function setControlsDisabled(disabled) {
+                el.modeSelect.disabled = disabled;
+                el.game3rbDownloadMode.disabled = disabled;
+
+                el.mainLink.disabled = disabled;
+                el.concurrency.disabled = disabled;
+
+                el.delayBetweenUrls.disabled = disabled;
+                el.initialWarmup.disabled = disabled;
+                el.maxRetries.disabled = disabled;
+                el.pollInterval.disabled = disabled;
+
+                el.startBtn.disabled = disabled;
+            }
+
+            function logLine(message) {
+                if (!message) {
+                    return;
+                }
+
+                const timestamp = new Date().toLocaleTimeString();
+                const line = `[${timestamp}] ${message}\n`;
+
+                el.systemLog.textContent = line + el.systemLog.textContent;
+            }
+
+            function updateModeUI() {
+                const mode = el.modeSelect.value;
+                const isGame3rb = mode === "game3rb";
+                const gameMode = el.game3rbDownloadMode.value;
+
+                el.game3rbModeGroup.style.display = isGame3rb ? "block" : "none";
+                el.game3rbSettingsGroup.style.display = isGame3rb ? "grid" : "none";
+
+                el.outputFitgirl.style.display = isGame3rb ? "none" : "flex";
+                el.outputGame3rb.style.display = isGame3rb ? "flex" : "none";
+
+                el.mainLinkLabel.textContent = isGame3rb
+                    ? "Main Game3rb Link"
+                    : "Main FitGirl Link";
+
+                el.mainLink.placeholder = isGame3rb
+                    ? "https://game3rb.com/..."
+                    : "https://fitgirl-repacks.site/...";
+
+                el.pageTitle.textContent = isGame3rb
+                    ? "Game3rb → 1CloudFile Direct Link Resolver"
+                    : "FitGirl → FuckingFast Direct Link Resolver";
+
+                el.statSourceLabel.textContent = isGame3rb
+                    ? "1CF Links"
+                    : "FF Links";
+
+                const showConcurrency = !isGame3rb || gameMode === "concurrent";
+
+                el.concurrencyGroup.style.display = showConcurrency ? "block" : "none";
+                el.iterativeNote.style.display =
+                    isGame3rb && gameMode === "iterative"
+                        ? "block"
+                        : "none";
+            }
+
+            function setSettingsInputs(settings) {
+                if (!settings) {
+                    return;
+                }
+
+                if (typeof settings.delay_between_urls !== "undefined") {
+                    el.delayBetweenUrls.value = settings.delay_between_urls;
+                }
+
+                if (typeof settings.initial_warmup !== "undefined") {
+                    el.initialWarmup.value = settings.initial_warmup;
+                }
+
+                if (typeof settings.max_retries !== "undefined") {
+                    el.maxRetries.value = settings.max_retries;
+                }
+
+                if (typeof settings.poll_interval !== "undefined") {
+                    el.pollInterval.value = settings.poll_interval;
+                }
+            }
+
+            function applyStatus(s) {
+                if (!uiInitialized) {
+                    if (s.mode) {
+                        el.modeSelect.value = s.mode;
+                    }
+
+                    if (s.download_mode) {
+                        el.game3rbDownloadMode.value = s.download_mode;
+                    }
+
+                    setSettingsInputs(s.settings);
+                    updateModeUI();
+
+                    uiInitialized = true;
+                }
+
+                if (s.running) {
+                    if (s.mode) {
+                        el.modeSelect.value = s.mode;
+                    }
+
+                    if (s.download_mode) {
+                        el.game3rbDownloadMode.value = s.download_mode;
+                    }
+
+                    setSettingsInputs(s.settings);
+                    updateModeUI();
+                }
+
+                const phase = String(s.phase || "idle");
+                const message = String(s.message || "");
+
+                el.statFfLinks.textContent = String(
+                    s.source_links || s.ff_links || s.total || 0
+                );
+
+                el.statProcessed.textContent = String(s.processed || 0);
+                el.statDirect.textContent = String(s.success || 0);
+                el.statFailed.textContent = String(s.failure || 0);
+                el.statProgress.textContent = `${s.progress || 0}%`;
+
+                el.progressFill.style.width = `${s.progress || 0}%`;
+                el.statusPhase.textContent = phase.toUpperCase();
+
+                if (s.running) {
+                    el.statusDot.className = "nexus-status-dot nexus-status-dot--alerting";
+                    setControlsDisabled(true);
+                } else if (phase === "done") {
+                    el.statusDot.className = "nexus-status-dot nexus-status-dot--online";
+                    setControlsDisabled(false);
+                } else if (phase === "error") {
+                    el.statusDot.className = "nexus-status-dot nexus-status-dot--alerting";
+                    setControlsDisabled(false);
+                } else {
+                    el.statusDot.className = "nexus-status-dot";
+                    setControlsDisabled(false);
+                }
+
+                const statusKey = `${phase}::${message}`;
+
+                if (statusKey !== lastStatusKey) {
+                    logLine(`${phase.toUpperCase()} :: ${message}`);
+                    lastStatusKey = statusKey;
+                }
+
+                if (phase === "done" && previousPhase !== "done") {
+                    toast("success", "Run complete.");
+                }
+
+                if (phase === "error" && previousPhase !== "error") {
+                    toast("danger", message || "Task failed.");
+                }
+
+                previousPhase = phase;
+            }
+
+            async function refreshStatus() {
+                try {
+                    const res = await fetch("/api/status");
+                    if (!res.ok) {
+                        return;
+                    }
+
+                    const data = await res.json();
+                    applyStatus(data);
+                } catch (err) {
+                    // Silent poll failure.
+                }
+            }
+
+            el.form.addEventListener("submit", (event) => {
+                event.preventDefault();
+            });
+
+            el.modeSelect.addEventListener("change", updateModeUI);
+            el.game3rbDownloadMode.addEventListener("change", updateModeUI);
+            el.concurrency.addEventListener("input", updateSlider);
+
+            el.startBtn.addEventListener("click", async (event) => {
+                event.preventDefault();
+
+                const mode = el.modeSelect.value;
+                const mainLink = el.mainLink.value.trim();
+                const game3rbDownloadMode = el.game3rbDownloadMode.value;
+
+                if (!mainLink) {
+                    toast("danger", "Main link is required.");
+                    return;
+                }
+
+                if (!mainLink.startsWith("http://") && !mainLink.startsWith("https://")) {
+                    toast("danger", "Enter a valid http(s) URL.");
+                    return;
+                }
+
+                const settings = {
+                    delay_between_urls: Number(el.delayBetweenUrls.value || 0),
+                    initial_warmup: Number(el.initialWarmup.value || 0),
+                    max_retries: Number(el.maxRetries.value || 4),
+                    poll_interval: Number(el.pollInterval.value || 0.25)
+                };
+
+                let concurrency = Number(el.concurrency.value || 5);
+
+                if (mode === "game3rb" && game3rbDownloadMode === "iterative") {
+                    concurrency = 1;
+                }
+
+                try {
+                    setControlsDisabled(true);
+
+                    const res = await fetch("/api/start", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            mode: mode,
+                            main_link: mainLink,
+                            concurrency: concurrency,
+                            game3rb_download_mode: game3rbDownloadMode,
+                            settings: settings
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.ok) {
+                        throw new Error(data.error || "Could not start task.");
+                    }
+
+                    toast("success", "Extraction task started.");
+
+                    el.systemLog.textContent = "";
+                    lastStatusKey = "";
+                    previousPhase = "";
+
+                    await refreshStatus();
+                } catch (err) {
+                    toast("danger", err.message);
+                    setControlsDisabled(false);
+                }
+            });
+
+            updateSlider();
+            updateModeUI();
+            refreshStatus();
+
+            setInterval(refreshStatus, 1200);
+        });
+    </script>
+</body>
+</html>
