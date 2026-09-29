@@ -1,7 +1,12 @@
 طلبية خاصة عشان احمد الحلو
-# Project Name
+# Fucking fast / 1CloudFile resolver
 
-A short description of what this project does.
+basically, pick your website you want to get the links from (only supporting fucking fast on fitgirl repacks and 1CloudFile on game3rb if you trust that website enough) , then paste your link in the input field and click "Initialize Extraction" to get the download link.
+
+i recommend using less than 10 concurrent browsers to avoid rate limiting if the there are too many links to process.
+
+once you see the green light you can download the ff_direct_download_link.txt file which contains the direct download links.
+note : ff_links.txt is just the links you find on the original website.
 
 ## Prerequisites
 
@@ -59,7 +64,9 @@ When activated, your terminal prompt will show `(venv)`.
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
+scrapling install
 ```
+the scrapling command might take a while to install. just wait for it to finish. it installs browsers and stuff.
 
 ## Running the App
 
