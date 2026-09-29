@@ -20,9 +20,10 @@ python --version
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/MrNyox/ff_g3rb_links_resolver
+cd ff_g3rb_links_resolver
 ```
+or you can download the ZIP file and extract it.
 
 ### 2. Create a virtual environment
 
@@ -45,6 +46,7 @@ venv\Scripts\activate.bat
 ```
 
 **Windows (PowerShell):**
+You may use this one most likely if you're on windows 11. 
 
 ```powershell
 venv\Scripts\Activate.ps1
